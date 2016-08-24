@@ -18,8 +18,8 @@ def create_opt_parser():
   parser.add_option("-t", "--types", dest="types", action="store",
                     type="string",  default="execute",
                     help="specify machine type ([manager],[submit],[execute])")
-  parser.add_option("-p", "--pegasus", dest="pegasus", action="store",
-                    type="boolean", default=False,
+  parser.add_option("-p", "--pegasus", dest="pegasus", action="store_true",
+                    default=False,
                     help="additionally install pegasus")
   parser.add_option("--tmp-dir", dest="tmp_dir", action="store",
                     type="string", default="/tmp",
