@@ -36,7 +36,7 @@ def install_dependencies():
 
 
 def set_env_vars(pegasus):
-  print "set env_variables for condor and root"
+  print "set env_variables for root, condor and you"
   bin_path = ""
 
   if pegasus:
@@ -59,31 +59,35 @@ def set_env_vars(pegasus):
     for VAR in ENV_VARS:
       f.write("export %s\n" % VAR)
 
+  with open("%s/.bashrc" % os.environ["HOME"], "a") as f:
+    for VAR in ENV_VARS:
+      f.write("export %s\n" % VAR)
 
-def install_condor(types):
+
+def install_condor(types, tmp_dir):
   print "unpack condor"
-  os.system("mkdir ./condor")
-  os.system("tar -zxvf condor.tar.gz -C ./condor > /dev/null")
-  os.system("mv condor/*/* condor")
+  os.system("mkdir %s/condor                                  " % tmp_dir)
+  os.system("tar -zxvf condor.tar.gz -C %s/condor > /dev/null " % tmp_dir)
+  os.system("mv %(tmp)s/condor/*/* %(tmp)s/condor             " % {"tmp": tmp_dir})
 
   print "install condor to '%s'" % CONDOR_INSTALL
-  os.system("mkdir %s          " % CONDOR_INSTALL)
+  os.system("mkdir -p %s       " % CONDOR_INSTALL)
   os.system("./condor/condor_install \
-             --install=./condor \
+             --install=%s/condor \
              --install-dir=%s \
              --local-dir=/home/condor \
              --type=%s\
-             " % (CONDOR_INSTALL,types))
+             " % (tmp_dir,CONDOR_INSTALL,types))
 
 
-def install_pegasus():
+def install_pegasus(tmp_dir):
   print "unpack pegasus"
-  os.system("mkdir pegasus")
-  os.system("tar -zxvf pegasus.tar.gz -C pegasus > /dev/null")
+  os.system("mkdir %s/pegasus                                 " % tmp_dir)
+  os.system("tar -zxvf pegasus.tar.gz -C %s/pegasus > /dev/null" % tmp_dir)
 
   print "install pegasus to '%s'" % PEGASUS_INSTALL
   os.system("mkdir %s                        " % PEGASUS_INSTALL)
-  os.system("mv pegasus/pegasus*/* %(PI)s      " % {"PI": PEGASUS_INSTALL})
+  os.system("mv %s/pegasus/pegasus*/* %s " % (tmp_dir, PEGASUS_INSTALL))
 
 
 def change_hostname(condor_id):
@@ -129,13 +133,14 @@ def change_config():
   print "reconfigure condor with new config file"
   new_file = ""
 
-  with open("%s/etc/condor_config" % CONDOR_INSTALL, "r+") as f:
+  with open("%s/etc/condor_config" % CONDOR_INSTALL, "r") as f:
     for line in f.readlines():
-      if "" in line:
+      if "use SECURITY :" in line:
         new_file  += "TRUST_UID_DOMAIN = true\n"
       else:
         new_file  += line
     
+  with open("%s/etc/condor_config" % CONDOR_INSTALL, "w") as f:
     f.write(new_file)
 
 #def change_config():
@@ -169,9 +174,9 @@ def main():
   check_user()
   change_hostname(options.condor_id)
   install_dependencies()
-  install_condor(options.types)
+  install_condor(options.types, options.tmp_dir)
   if options.pegasus:
-    install_pegasus()
+    install_pegasus(options.tmp_dir)
   set_env_vars(options.pegasus)
   change_config()
   print "system configured"
