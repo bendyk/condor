@@ -72,12 +72,12 @@ def install_condor(types, tmp_dir):
 
   print "install condor to '%s'" % CONDOR_INSTALL
   os.system("mkdir -p %s       " % CONDOR_INSTALL)
-  os.system("./condor/condor_install \
+  os.system("%s/condor/condor_install \
              --install=%s/condor \
              --install-dir=%s \
              --local-dir=/home/condor \
              --type=%s\
-             " % (tmp_dir,CONDOR_INSTALL,types))
+             " % (tmp_dir,tmp_dir,CONDOR_INSTALL,types))
 
 
 def install_pegasus(tmp_dir):
