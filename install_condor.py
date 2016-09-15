@@ -1,4 +1,5 @@
 import os
+import sys
 import time
 import subprocess
 from optparse import OptionParser
@@ -58,7 +59,7 @@ def set_env_vars(options):
 
   export_to_bashrc("/root/.bashrc", ENV_VARS)
   export_to_bashrc("/home/condor/.bashrc", ENV_VARS)
-  export_to_bashrc("%s/.bashrc" % os.environ["HOME"], ENV_VARS)
+#  export_to_bashrc("%s/.bashrc" % os.environ["HOME"], ENV_VARS)
 
 
 def export_to_bashrc(path, ENV_VARS):
@@ -82,6 +83,8 @@ def install_condor(options):
   master         = options.master
   tmp_dir        = options.tmp_dir
   CONDOR_INSTALL = options.install_dir + "/condor"
+  tar_path       = "/".join(sys.argv[0].split("/")[0:-1]) if "/" in sys.argv[0] else "."
+
   if "manage" in types:
     master = "127.0.1.1"
 
@@ -89,7 +92,7 @@ def install_condor(options):
   
   if not os.path.exists("%s/condor" % tmp_dir):
     os.makedirs("%s/condor" % tmp_dir)
-    os.system("tar -zxvf condor.tar.gz -C %s/condor > /dev/null " % tmp_dir)
+    os.system("tar -zxvf %s/condor.tar.gz -C %s/condor > /dev/null " % (tar_path, tmp_dir))
     os.system("mv %(tmp)s/condor/*/* %(tmp)s/condor             " % {"tmp": tmp_dir})
 
   print "install condor to '%s'" % CONDOR_INSTALL
@@ -108,17 +111,18 @@ def install_condor(options):
 
 
 def install_pegasus(options):
-  tmp_dir = options.tmp_dir
+  tmp_dir  = options.tmp_dir
   PEGASUS_INSTALL = options.install_dir + "/pegasus"
   WORKER_INSTALL  = options.install_dir + "/worker_pegasus"
+  tar_path        = "/".join(sys.argv[0].split("/")[0:-1]) if "/" in sys.argv[0] else "."
 
   print "unpack pegasus"
 
   if not os.path.exists("%s/pegasus" % tmp_dir):
     os.makedirs("%s/pegasus"        % tmp_dir)
     os.makedirs("%s/worker_pegasus" % tmp_dir)
-    os.system("tar -zxvf pegasus.tar.gz -C %s/pegasus > /dev/null"               % tmp_dir)
-    os.system("tar -zxvf pegasus_worker.tar.gz -C %s/worker_pegasus > /dev/null" % tmp_dir)
+    os.system("tar -zxvf %s/pegasus.tar.gz -C %s/pegasus > /dev/null"               % (tar_path, tmp_dir))
+    os.system("tar -zxvf %s/pegasus_worker.tar.gz -C %s/worker_pegasus > /dev/null" % (tar_path, tmp_dir))
 
   print "install pegasus to '%s'" % PEGASUS_INSTALL
 
@@ -126,7 +130,6 @@ def install_pegasus(options):
     os.makedirs(PEGASUS_INSTALL)
     os.makedirs(WORKER_INSTALL)
     os.system("mv %s/pegasus/pegasus*/* %s "        % (tmp_dir, PEGASUS_INSTALL))
-#TODO directory structure of worker tarball
     os.system("mv %s/worker_pegasus/pegasus*/* %s " % (tmp_dir, WORKER_INSTALL))
   else:
     print "Pegasus already installed"
@@ -171,7 +174,7 @@ def check_user():
         print "Continue with existing user"
 
   if not user_exist:
-    os.system("useradd -d /home/condor -m condor")
+    os.system("useradd -d /home/condor -m condor -p t1I9rh4Iq1MdE")
 
 
 def change_config(options):
@@ -231,7 +234,7 @@ def create_daemon_list(types):
 def main():
   options = create_opt_parser()
   check_user()
-  change_hostname(options)
+#  change_hostname(options)
   install_dependencies()
   install_condor(options)
   if options.pegasus:

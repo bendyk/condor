@@ -2,7 +2,7 @@ import os
 import threading
 import getpass
 import configparser
-
+from optparse import OptionParser
 class Machine:
   
 
@@ -24,12 +24,13 @@ class Machine:
       print("Error: Check condor_pool.ini no address or id for some machine")
       exit(-1)
 
-  def start_server(self):
+  def install_machine(self):
+### Use this lines to transfer files if they dont exist on remote hosts
     if self.cp_files:
       self.copy_files()
       self.script = "."
 
-    cmd  = "ssh %s@%s python %s/setup_system.py " %(self.user, self.address, self.script)
+    cmd  = "ssh -oStrictHostKeyChecking=no %s@%s sudo python %s/install_condor.py " %(self.user, self.address, self.script)
     cmd += "-p "    if self.master  else ""
     cmd += "-i %d " % self.machine 
     cmd += "-t %s " % self.types   if self.types   else ""
@@ -42,7 +43,8 @@ class Machine:
    
   def copy_files(self):
     cmd  = "scp "
-    cmd += self.script + "/setup_system.py "
+    cmd += self.script + "/install_condor.py "
+    cmd += self.script + "/setup_pool.py "
     cmd += self.script + "/condor.tar.gz "
     cmd += self.script + "/pegasus.tar.gz "
     cmd += self.script + "/pegasus_worker.tar.gz "
@@ -51,7 +53,32 @@ class Machine:
     print(cmd)
     os.system(cmd)
 
-      
+
+  def configure_machine(self):
+### Use this lines to transfer files if they dont exist on remote hosts
+    if self.cp_files:
+      self.copy_files()
+      self.script = "."
+    cmd  = "ssh -oStrictHostKeyChecking=no %s@%s sudo python %s/setup_pool.py " %(self.user, self.address, self.script)
+    cmd += "-n %s " % self.machine_name
+    cmd += "-t %s " % self.types
+    cmd += "-m %s " % self.maddr
+    print(cmd)
+    os.system(cmd)
+    
+
+
+  
+def create_opt_parser():
+  parser = OptionParser()
+
+  parser.add_option("-c", "--configure", dest="configure", action="store",
+                    default=False,
+                    help="Use this option if condor is already installed and \
+                          you only want to reconfigure the machines")
+  
+  (options, args) = parser.parse_args()
+  return options
 
 
 def read_config(machines):
@@ -67,15 +94,24 @@ def read_config(machines):
 
 def main():
 
+  threads = []
   machines = []
   read_config(machines)
+  options = create_opt_parser()
 
   for machine in machines:
-    print("start Machine %d" % machine.machine)
-    t = threading.Thread(target=machine.start_server, args=[])
-    t.start()
+    if options.configure:
+      threads.append(threading.Thread(target=machine.install_machine, args=[]))
+    else:
+      threads.append(threading.Thread(target=machine.configure_machine, args=[]))
+    threads[-1].start()
+
     if machine.master:
       t.join()
+
+
+  for t in threads:
+    t.join()
 
 
 if __name__ == "__main__":
