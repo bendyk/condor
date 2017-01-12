@@ -106,6 +106,11 @@ def install_condor(options):
                --central-manager=%s \
                --type=%s\
              " % (tmp_dir,tmp_dir,CONDOR_INSTALL,master,types))
+    
+    # create condor execution dir
+    os.makedirs("/home/condor/config")
+    os.chmod("/home/condor/config", 511)
+  
   else:
     print "Condor already installed"
 
@@ -174,7 +179,7 @@ def check_user():
         print "Continue with existing user"
 
   if not user_exist:
-    os.system("useradd -d /home/condor -m condor -p t1I9rh4Iq1MdE")
+    os.system("useradd -d /home/condor -m condor -p $(echo "condor" | openssl passwd -1 -salt "" -stdin))
 
 
 def change_config(options):
