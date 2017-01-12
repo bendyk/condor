@@ -1,7 +1,9 @@
 #Setup system for condor
-#These scripts will need sudo permissions to install condor correct
-#A new user: "condor" passwd: "condor" will be created
-
+- These scripts will need sudo permissions to install condor correct
+- A new user will be created
+    user  : "condor" 
+    passwd: "condor"
+    
 1. Download tarballs of condor and pegasus from the official pages or use the attached tarballs
   (Rename tarballs to condor.tar.gz and pegasus.tar.gz)
 
