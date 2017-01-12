@@ -17,7 +17,7 @@ def create_opt_parser():
 
   (options, args) = parser.parse_args()
 
-  if not not os.environ.has_key("CONDOR_CONFIG"):
+  if not os.environ.has_key("CONDOR_CONFIG"):
     print("$CONDOR_CONFIG not set")
     exit(-2)
   return options
