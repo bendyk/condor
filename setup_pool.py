@@ -8,9 +8,6 @@ from optparse import OptionParser
 def create_opt_parser():
   parser = OptionParser()
 
-  parser.add_option("-n", "--hostname", dest="condor_id", action="store",
-                    type="string",  default="Condor",
-                    help="hostname of the condor machine")
   parser.add_option("-t", "--types", dest="types", action="store",
                     type="string",  default="execute",
                     help="specify machine type ([manager],[submit],[execute])")
