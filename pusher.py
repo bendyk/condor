@@ -60,7 +60,6 @@ class Machine:
       self.copy_files()
       self.script = "."
     cmd  = "ssh -oStrictHostKeyChecking=no %s@%s sudo python %s/setup_pool.py " %(self.user, self.address, self.script)
-    cmd += "-n %s " % self.machine_name
     cmd += "-t %s " % self.types
     cmd += "-m %s " % self.maddr
     print(cmd)
@@ -100,7 +99,7 @@ def main():
   options = create_opt_parser()
 
   for machine in machines:
-    if options.configure:
+    if not options.configure:
       threads.append(threading.Thread(target=machine.install_machine, args=[]))
     else:
       threads.append(threading.Thread(target=machine.configure_machine, args=[]))
