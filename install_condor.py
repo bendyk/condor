@@ -12,8 +12,8 @@ def create_opt_parser():
                     type="string",  default="0",
                     help="numeric id of the condor machine")
   parser.add_option("-t", "--types", dest="types", action="store",
-                    type="string",  default="execute",
-                    help="specify machine type ([manager],[submit],[execute])")
+                    type="string",  default="manager,submit,execute",
+                    help="specify machine type ([manager],[submit],[execute]). Default is all types.")
   parser.add_option("-m", "--master", dest="master", action="store",
                     type="string",  default="127.0.1.1",
                     help="specify condor master address")
