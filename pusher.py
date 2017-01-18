@@ -42,7 +42,7 @@ class Machine:
 
    
   def copy_files(self):
-    cmd  = "scp "
+    cmd  = "scp -oStrictHostKeyChecking=no "
     cmd += self.script + "/install_condor.py "
     cmd += self.script + "/setup_pool.py "
     cmd += self.script + "/condor.tar.gz "
@@ -107,7 +107,7 @@ def main():
     threads[-1].start()
 
     if machine.master:
-      t.join()
+      threads[-1].join()
 
 
   for t in threads:
