@@ -179,7 +179,7 @@ def check_user():
         print "Continue with existing user"
 
   if not user_exist:
-    os.system("useradd -d /home/condor -m condor -p $(echo "condor" | openssl passwd -1 -salt "" -stdin))
+    os.system('useradd -d /home/condor -m condor -p $(echo "condor" | openssl passwd -1 -salt "" -stdin)')
 
 
 def change_config(options):
